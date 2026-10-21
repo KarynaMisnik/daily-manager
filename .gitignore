@@ -1,0 +1,21 @@
+/LifeManager/obj/
+/LifeManager/bin/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build output
+[Bb]in/
+[Oo]bj/
+**/bin/
+**/obj/
+
+# User-specific files
+*.userosscache
+*.sln.docstates
+
+LifeManager/obj/
+LifeManager/bin/
+.vs/
