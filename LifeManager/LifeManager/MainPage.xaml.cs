@@ -14,12 +14,19 @@
                 await DisplayAlertAsync("Empty task", "Please enter a task first", "OK");
                 return;
             }
-            string task = TaskEntry.Text;
-            HorizontalStackLayout taskRow = new HorizontalStackLayout();
+            TodoTask newTask = new TodoTask // Task object with title and completion status proerties
+            {
+                Title = TaskEntry.Text,
+                IsCompleted = false
+            };
+            HorizontalStackLayout taskRow = new HorizontalStackLayout()
+            {
+                Spacing = 10
+            };
 
             Label taskLabel = new Label
             {
-                Text = task,
+                Text = newTask.Title,
                 VerticalOptions = LayoutOptions.Center
             };
 
@@ -37,8 +44,9 @@
             ;
             doneCheckBox.CheckedChanged += (sender, e) =>
             {
+                newTask.IsCompleted = e.Value;
 
-                taskLabel.TextDecorations = e.Value ? TextDecorations.Strikethrough : TextDecorations.None;
+                taskLabel.TextDecorations = newTask.IsCompleted ? TextDecorations.Strikethrough : TextDecorations.None;
             };
 
             {
