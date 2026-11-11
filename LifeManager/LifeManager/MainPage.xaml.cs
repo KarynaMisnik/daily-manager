@@ -43,7 +43,7 @@ namespace LifeManager
             }
             TodoTask newTask = new TodoTask // Task object with title and completion status proerties
             {
-                Title = TaskEntry.Text,
+                Title = TaskEntry.Text.Trim(),
                 IsCompleted = false,
                 CategoryId = 1
             };

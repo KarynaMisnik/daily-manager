@@ -1,5 +1,7 @@
 # Life Manager
 
+
+
 **MainPage.xaml** — defines the UI layout of your page.
 <br>
 **AppShell.xaml** — defines the app's navigation structure.
