@@ -75,6 +75,14 @@ namespace LifeManager
     ? TextDecorations.Strikethrough
     : TextDecorations.None
                 };
+
+                Entry editEntry = new Entry
+                {
+                    Text = task.Title,
+                    IsVisible = false,
+                    WidthRequest = 200
+                };
+
                 Button deleteButton = new Button
                 {
                     Text = "Delete"
@@ -89,6 +97,64 @@ namespace LifeManager
                     response.EnsureSuccessStatusCode();
 
                     await LoadTasksAsync();
+                };
+
+                Button editButton = new Button
+                {
+                    Text = "Edit"
+                };
+
+                Button cancelButton = new Button
+                {
+                    Text = "Cancel",
+                    IsVisible = false
+                };
+
+                editButton.Clicked += async (sender, e) =>
+                {
+                    if (editButton.Text == "Edit")
+                    {
+                        taskLabel.IsVisible = false;
+                        editEntry.IsVisible = true;
+                        editButton.Text = "Save";
+                        cancelButton.IsVisible = true;
+                    }
+                    else
+                    {
+                        string newTitle = editEntry.Text?.Trim() ?? "";
+
+                        if (string.IsNullOrWhiteSpace(newTitle))
+                        {
+                            await DisplayAlertAsync(
+                                "Invalid title",
+                                "Task title cannot be empty.",
+                                "OK"
+                            );
+                            return;
+                        }
+
+                     
+                        task.Title = newTitle;
+
+                        var response = await _httpClient.PutAsJsonAsync(
+                            $"https://localhost:7187/api/tasks/{task.Id}",
+                            task
+                        );
+
+                        response.EnsureSuccessStatusCode();
+
+                        await LoadTasksAsync();
+
+                    }
+                };
+
+                cancelButton.Clicked += (sender, e) =>
+                {
+                    editEntry.Text = task.Title;
+                    editEntry.IsVisible = false;
+                    taskLabel.IsVisible = true;
+                    editButton.Text = "Edit";
+                    cancelButton.IsVisible = false;
                 };
 
                 CheckBox doneCheckBox = new CheckBox()
@@ -117,6 +183,9 @@ namespace LifeManager
 
 
                 taskRow.Children.Add(deleteButton);
+                taskRow.Children.Add(editButton);
+                taskRow.Children.Add(editEntry);
+                taskRow.Children.Add(cancelButton);
                 taskRow.Children.Add(taskLabel);
                 taskRow.Children.Add(doneCheckBox);
                 taskRow.Children.Add(doneLabel);
