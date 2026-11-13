@@ -186,10 +186,73 @@ namespace LifeManager
             TaskList.Children.Clear();
             foreach(TodoTask task in Tasks)
             {
+                Border taskCard = new Border
+                {
+                    StrokeThickness = 1,
+                    Stroke = Colors.LightGray,
+                    StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle
+                    {
+                        CornerRadius = new CornerRadius(12)
+                    },
+                    Padding = new Thickness(12),
+                    Margin = new Thickness(0, 4)
+                };
+
+                VerticalStackLayout cardContent = new VerticalStackLayout
+                {
+                    Spacing = 8
+                };
+
                 HorizontalStackLayout taskRow = new HorizontalStackLayout()
                 {
                     Spacing = 10
                 };
+
+                HorizontalStackLayout tagsRow = new HorizontalStackLayout
+                {
+                    Spacing = 8
+                };
+
+                string priorityName = task.Priority switch
+                {
+                    3 => "High",
+                    2 => "Medium",
+                    _ => "Low"
+                };
+
+                Label priorityTag = new Label
+                {
+                    Text = priorityName,
+                    FontSize = 12,
+                    Padding = new Thickness(10, 5),
+                    BackgroundColor = Color.FromArgb("#E8E8E8"),
+                    TextColor = Colors.Black
+                };
+
+                tagsRow.Children.Add(priorityTag);
+
+                Label dueDateTag = new Label
+                {
+                    Text = task.DueDate?.ToString("dd.MM.yyyy") ?? "No due date",
+                    FontSize = 12,
+                    Padding = new Thickness(10, 5),
+                    BackgroundColor = Color.FromArgb("#E8E8E8"),
+                    TextColor = Colors.Black
+                };
+
+                tagsRow.Children.Add(dueDateTag);
+
+                Label categoryTag = new Label
+                {
+                    Text = task.CategoryId == 1 ? "General" : "Unknown",
+                    FontSize = 12,
+                    Padding = new Thickness(10, 5),
+                    BackgroundColor = Color.FromArgb("#E8E8E8"),
+                    TextColor = Colors.Black
+                };
+
+                tagsRow.Children.Add(categoryTag);
+
                 Label taskLabel = new Label
                 {
                     Text = task.Title,
@@ -323,15 +386,18 @@ namespace LifeManager
 
 
 
-                taskRow.Children.Add(deleteButton);
-                taskRow.Children.Add(editButton);
-                taskRow.Children.Add(editEntry);
-                taskRow.Children.Add(cancelButton);
                 taskRow.Children.Add(taskLabel);
+                taskRow.Children.Add(editEntry);
+                taskRow.Children.Add(editButton);
+                taskRow.Children.Add(cancelButton);
+                taskRow.Children.Add(deleteButton);
                 taskRow.Children.Add(doneCheckBox);
                 taskRow.Children.Add(doneLabel);
 
-                TaskList.Children.Add(taskRow);
+                cardContent.Children.Add(taskRow);
+                cardContent.Children.Add(tagsRow);
+                taskCard.Content = cardContent;
+                TaskList.Children.Add(taskCard);
             }
         }
     }
