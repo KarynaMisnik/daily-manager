@@ -13,6 +13,10 @@
         x:Name="PageTitle"
         FontSize="24"
         FontAttributes="Bold" />
+            <Label
+    x:Name="WeatherLabel"
+    Text="Loading weather..."
+    FontSize="16" />
 			<Entry
 				x:Name="TaskEntry"
 				Placeholder="Enter a new task..." />
