@@ -122,7 +122,11 @@ namespace LifeManager
             {
                 Title = TaskEntry.Text.Trim(),
                 IsCompleted = false,
-                CategoryId = 1
+                CategoryId = 1,
+                Priority = PriorityPicker.SelectedIndex + 1,
+                DueDate = DueDatePicker.Date.HasValue
+    ? DateTime.SpecifyKind(DueDatePicker.Date.Value, DateTimeKind.Utc)
+    : null
             };
             var response = await _httpClient.PostAsJsonAsync(
      "https://localhost:7187/api/tasks",
@@ -137,6 +141,48 @@ namespace LifeManager
         }
         private void DisplayTasks()
         {
+
+            var topTasks = Tasks
+    .Where(task => !task.IsCompleted)
+    .OrderByDescending(task => task.Priority)
+    .ThenBy(task => task.DueDate ?? DateTime.MaxValue)
+    .Take(3)
+    .ToList();
+
+            TopTasksList.Children.Clear();
+
+            foreach (TodoTask task in topTasks)
+            {
+                string priorityName = task.Priority switch
+                {
+                    3 => "High",
+                    2 => "Medium",
+                    _ => "Low"
+                };
+
+                VerticalStackLayout taskLayout = new VerticalStackLayout
+                {
+                    Spacing = 4
+                };
+
+                Label titleLabel = new Label
+                {
+                    Text = task.Title,
+                    FontSize = 16
+                };
+
+                Label priorityLabel = new Label
+                {
+                    Text = priorityName,
+                    FontSize = 12
+                };
+
+                taskLayout.Children.Add(titleLabel);
+                taskLayout.Children.Add(priorityLabel);
+
+                TopTasksList.Children.Add(taskLayout);
+            }
+
             TaskList.Children.Clear();
             foreach(TodoTask task in Tasks)
             {
@@ -271,6 +317,7 @@ namespace LifeManager
 );
 
                     response.EnsureSuccessStatusCode();
+                    await LoadTasksAsync();
                 };
 
 
