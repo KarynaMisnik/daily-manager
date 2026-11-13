@@ -1,5 +1,7 @@
 ﻿
 using System.Net.Http.Json;
+using LifeManager.Services;
+using LifeManager.Models;
 
 namespace LifeManager
 {
@@ -11,6 +13,38 @@ namespace LifeManager
         // private means it's accessible inside MainPage
 
         private readonly HttpClient _httpClient = new HttpClient();
+        private readonly WeatherService _weatherService = new WeatherService();
+
+        private async Task LoadWeatherAsync()
+        {
+            try
+            {
+                CurrentWeather? weather = await _weatherService.GetWeatherAsync();
+
+                if (weather != null)
+                {
+                    WeatherLabel.Text =
+                        $"Temperature: {weather.Temperature:F1}°C | Wind: {weather.WindSpeed:F1} m/s";
+
+                    if (weather.WindSpeed > 5)
+                    {
+                        WeatherLabel.Text += "\n🪁 Kitesurf weather!";
+                    }
+                }
+                else
+                {
+                    WeatherLabel.Text = "Weather data unavailable";
+                }
+            }
+            catch (HttpRequestException)
+            {
+                WeatherLabel.Text = "Unable to load weather. Check your internet connection.";
+            }
+            catch (TaskCanceledException)
+            {
+                WeatherLabel.Text = "Weather request timed out.";
+            }
+        }
 
         private async void OnSettingsClicked(object sender, EventArgs e)
         {
@@ -39,8 +73,10 @@ namespace LifeManager
 
         protected override async void OnAppearing()
         {
+
             base.OnAppearing();
             await LoadTasksAsync();
+            await LoadWeatherAsync();
             string savedColor = Preferences.Default.Get("BackgroundColor", "White");
 
             BackgroundColor = savedColor switch
