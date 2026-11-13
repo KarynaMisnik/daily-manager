@@ -41,6 +41,38 @@ namespace LifeManager
         {
             base.OnAppearing();
             await LoadTasksAsync();
+            string savedColor = Preferences.Default.Get("BackgroundColor", "White");
+
+            BackgroundColor = savedColor switch
+            {
+                "Beige" => Color.FromArgb("#F5F5DC"),
+                "Light Blue" => Color.FromArgb("#E3F2FD"),
+                "Dark" => Color.FromArgb("#17191E"),
+                "Vampire" => Color.FromArgb("#280D19"),
+                _ => Colors.White
+            };
+            PageTitle.TextColor = savedColor switch
+            {
+                "Dark" => Colors.White,
+                "Vampire" => Color.FromArgb("#FFB4C8"),
+                _ => Colors.Black
+            };
+
+            Shell.SetBackgroundColor(this, savedColor switch
+            {
+                "Dark" => Color.FromArgb("#17191E"),
+                "Vampire" => Color.FromArgb("#280D19"),
+                "Beige" => Color.FromArgb("#F5F5DC"),
+                "Light Blue" => Color.FromArgb("#E3F2FD"),
+                _ => Colors.White
+            });
+
+            Shell.SetTitleColor(this, savedColor switch
+            {
+                "Dark" => Colors.White,
+                "Vampire" => Color.FromArgb("#FFB4C8"),
+                _ => Colors.Black
+            });
         }
 
         private async void OnAddTaskClicked(object sender, EventArgs e)
@@ -84,7 +116,15 @@ namespace LifeManager
     ? TextDecorations.Strikethrough
     : TextDecorations.None,
     FontSize = Preferences.Default.Get("TaskFontSize", 16),
+                    TextColor = Preferences.Default.Get("BackgroundColor", "White") switch
+                    {
+                        "Dark" => Colors.White,
+                        "Vampire" => Color.FromArgb("#FFB4C8"),
+                        _ => Colors.Black
+                    },
                 };
+
+
 
                 Entry editEntry = new Entry
                 {
@@ -175,7 +215,13 @@ namespace LifeManager
                 Label doneLabel = new Label
                 {
                     Text = "Done",
-                    VerticalOptions = LayoutOptions.Center
+                    VerticalOptions = LayoutOptions.Center,
+                    TextColor = Preferences.Default.Get("BackgroundColor", "White") switch
+                    {
+                        "Dark" => Colors.White,
+                        "Vampire" => Color.FromArgb("#FFB4C8"),
+                        _ => Colors.Black
+                    }
                 };
 
                 doneCheckBox.CheckedChanged += async (sender, e) =>

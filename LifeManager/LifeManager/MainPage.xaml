@@ -10,6 +10,7 @@
     Clicked="OnSettingsClicked" />
 			<Label
         Text="My To-Do List"
+        x:Name="PageTitle"
         FontSize="24"
         FontAttributes="Bold" />
 			<Entry

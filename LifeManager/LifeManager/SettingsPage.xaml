@@ -27,5 +27,21 @@
     FontSize="16"
     Margin="0,15,0,0" />
 
+        <Label
+    Text="Background color"
+    Margin="0,20,0,0" />
+
+        <Picker
+    x:Name="BackgroundPicker"
+    Title="Choose background">
+            <Picker.Items>
+                <x:String>White</x:String>
+                <x:String>Beige</x:String>
+                <x:String>Light Blue</x:String>
+                <x:String>Dark</x:String>
+                <x:String>Vampire</x:String>
+            </Picker.Items>
+        </Picker>
+
     </VerticalStackLayout>
 </ContentPage>
