@@ -20,15 +20,38 @@
 			<Entry
 				x:Name="TaskEntry"
 				Placeholder="Enter a new task..." />
-			<Button
+            <Picker
+    x:Name="PriorityPicker"
+    Title="Select priority"
+    SelectedIndex="0">
+                <Picker.Items>
+                    <x:String>Low</x:String>
+                    <x:String>Medium</x:String>
+                    <x:String>High</x:String>
+                </Picker.Items>
+            </Picker>
+            <DatePicker
+    x:Name="DueDatePicker"
+    Format="dd.MM.yyyy" />
+            <Button
     Text="Add task"
     Clicked="OnAddTaskClicked" />
 
-			<VerticalStackLayout
+            <Label
+    Text="Top 3 Priority Tasks"
+    FontSize="20"
+    FontAttributes="Bold" />
+
+            <VerticalStackLayout
+    x:Name="TopTasksList"
+    Spacing="8" />
+
+            <VerticalStackLayout
                 x:Name="TaskList"
                 Spacing="10" />
 
 		</VerticalStackLayout>
+        
 
 	</ScrollView>
 

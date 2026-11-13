@@ -12,5 +12,8 @@ namespace LifeManager
         public int CategoryId { get; set; }
 
         public int Id { get; set; }
+
+        public int Priority { get; set; } = 1;
+        public DateTime? DueDate { get; set; }
     }
 }
