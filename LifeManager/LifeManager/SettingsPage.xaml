@@ -43,5 +43,21 @@
             </Picker.Items>
         </Picker>
 
+        <Border
+    x:Name="ThemePreview"
+    BackgroundColor="White"
+    Stroke="#CCCCCC"
+    StrokeThickness="1"
+    Padding="15"
+    StrokeShape="RoundRectangle 10">
+
+            <Label
+        x:Name="ThemePreviewText"
+        Text="Example task: Study C#"
+        TextColor="Black"
+        FontSize="16" />
+
+        </Border>
+
     </VerticalStackLayout>
 </ContentPage>

@@ -32,6 +32,22 @@ public partial class SettingsPage : ContentPage
                 ];
 
                 Preferences.Default.Set("BackgroundColor", selectedColor);
+
+                ThemePreview.BackgroundColor = selectedColor switch
+                {
+                    "Beige" => Color.FromArgb("#F5F5DC"),
+                    "Light Blue" => Color.FromArgb("#E3F2FD"),
+                    "Dark" => Color.FromArgb("#17191E"),
+                    "Vampire" => Color.FromArgb("#280D19"),
+                    _ => Colors.White
+                };
+
+                ThemePreviewText.TextColor = selectedColor switch
+                {
+                    "Dark" => Colors.White,
+                    "Vampire" => Color.FromArgb("#FFB4C8"),
+                    _ => Colors.Black
+                };
             }
         };
 
