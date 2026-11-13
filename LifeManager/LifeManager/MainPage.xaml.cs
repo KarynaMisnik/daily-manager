@@ -12,6 +12,15 @@ namespace LifeManager
 
         private readonly HttpClient _httpClient = new HttpClient();
 
+        private async void OnSettingsClicked(object sender, EventArgs e)
+        {
+            double fontSize = Preferences.Default.Get("TaskFontSize", 16.0);
+
+            await Shell.Current.GoToAsync(
+                $"{nameof(SettingsPage)}?fontSize={fontSize}"
+            );
+        }
+
         private async Task LoadTasksAsync()
         {
             var tasks = await _httpClient.GetFromJsonAsync<List<TodoTask>>(
@@ -73,7 +82,8 @@ namespace LifeManager
                     VerticalOptions = LayoutOptions.Center,
                     TextDecorations = task.IsCompleted
     ? TextDecorations.Strikethrough
-    : TextDecorations.None
+    : TextDecorations.None,
+    FontSize = Preferences.Default.Get("TaskFontSize", 16),
                 };
 
                 Entry editEntry = new Entry
@@ -180,6 +190,8 @@ namespace LifeManager
 
                     response.EnsureSuccessStatusCode();
                 };
+
+
 
 
                 taskRow.Children.Add(deleteButton);

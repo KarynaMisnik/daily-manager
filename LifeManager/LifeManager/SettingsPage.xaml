@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeManager.SettingsPage"
+             Title="SettingsPage">
+    <VerticalStackLayout
+    Padding="20"
+    Spacing="15">
+
+        <Label
+        Text="Settings"
+        FontSize="24"
+        FontAttributes="Bold" />
+
+        <Label
+        Text="Task font size" />
+
+        <Slider
+        x:Name="FontSizeSlider"
+        Minimum="12"
+        Maximum="30"
+        Value="16" />
+
+        <Label
+    x:Name="FontPreview"
+    Text="Example task"
+    FontSize="16"
+    Margin="0,15,0,0" />
+
+    </VerticalStackLayout>
+</ContentPage>

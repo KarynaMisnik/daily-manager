@@ -5,6 +5,9 @@
 
 	<ScrollView>
 		<VerticalStackLayout Padding="20" Spacing="15">
+            <Button
+    Text="Settings"
+    Clicked="OnSettingsClicked" />
 			<Label
         Text="My To-Do List"
         FontSize="24"
