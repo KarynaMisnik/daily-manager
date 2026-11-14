@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeManager.EditTaskPage"
+             Title="EditTaskPage">
+    <VerticalStackLayout Padding="20" Spacing="12">
+
+        <Label
+        Text="Edit Task"
+        FontSize="24"
+        FontAttributes="Bold" />
+
+        <Label Text="Task title" />
+
+        <Entry
+        x:Name="TitleEntry"
+        Placeholder="Enter task title" />
+
+        <Label Text="Priority" />
+
+        <Picker
+    x:Name="PriorityPicker"
+    Title="Select priority">
+            <Picker.Items>
+                <x:String>Low</x:String>
+                <x:String>Medium</x:String>
+                <x:String>High</x:String>
+            </Picker.Items>
+        </Picker>
+
+        <Label Text="Due date" />
+
+        <DatePicker
+    x:Name="DueDatePicker"
+    Format="dd.MM.yyyy" />
+
+        <Label Text="Category" />
+
+        <Picker
+    x:Name="CategoryPicker"
+    Title="Select category">
+            <Picker.Items>
+                <x:String>General</x:String>
+            </Picker.Items>
+        </Picker>
+
+        <HorizontalStackLayout Spacing="10" Margin="0,20,0,0">
+
+            <Button
+        Text="Save Changes"
+        Clicked="OnSaveClicked" />
+
+            <Button
+        Text="Cancel"
+        Clicked="OnCancelClicked" />
+
+        </HorizontalStackLayout>
+
+    </VerticalStackLayout>
+</ContentPage>
