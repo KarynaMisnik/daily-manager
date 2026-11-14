@@ -23,6 +23,19 @@ public class TasksController : ControllerBase
         return Ok(tasks);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetTask(int id)
+    {
+        var task = await _context.Tasks.FindAsync(id);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(task);
+    }
+
     [HttpPost] // tells ASP.NET Core to handle POST requests to /api/tasks
     public async Task<IActionResult> CreateTask(TodoTask task)
     {
@@ -45,6 +58,8 @@ public class TasksController : ControllerBase
         task.Title = updatedTask.Title;
         task.IsCompleted = updatedTask.IsCompleted;
         task.CategoryId = updatedTask.CategoryId;
+        task.Priority = updatedTask.Priority;
+        task.DueDate = updatedTask.DueDate;
 
         await _context.SaveChangesAsync();
 
