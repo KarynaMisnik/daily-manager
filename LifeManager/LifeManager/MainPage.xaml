@@ -33,6 +33,14 @@
             <DatePicker
     x:Name="DueDatePicker"
     Format="dd.MM.yyyy" />
+            <Picker
+    x:Name="CategoryPicker"
+    Title="Select category"
+    ItemDisplayBinding="{Binding Name}" />
+            <!-- Display the category name instead of the Category object -->
+            <Button
+    Text="+ New Category"
+    Clicked="OnNewCategoryClicked" />
             <Button
     Text="Add task"
     Clicked="OnAddTaskClicked" />
@@ -45,6 +53,12 @@
             <VerticalStackLayout
     x:Name="TopTasksList"
     Spacing="8" />
+
+            <Picker
+    x:Name="CategoryFilterPicker"
+    Title="Filter tasks by category"
+    ItemDisplayBinding="{Binding Name}" 
+    SelectedIndexChanged="OnCategoryFilterChanged"/>
 
             <VerticalStackLayout
                 x:Name="TaskList"

@@ -21,6 +21,14 @@ public partial class EditTaskPage : ContentPage
         }
     }
 
+    private async Task LoadCategoriesAsync()
+    {
+        var categories = await _httpClient.GetFromJsonAsync<List<Category>>(
+            "https://localhost:7187/api/categories");
+
+        CategoryPicker.ItemsSource = categories ?? new List<Category>();
+    }
+
     private async Task LoadTaskAsync()
     {
         TodoTask? task = await _httpClient.GetFromJsonAsync<TodoTask>(
@@ -33,7 +41,9 @@ public partial class EditTaskPage : ContentPage
             TitleEntry.Text = task.Title;
             PriorityPicker.SelectedIndex = task.Priority - 1;
             DueDatePicker.Date = task.DueDate;
-            CategoryPicker.SelectedIndex = task.CategoryId == 1 ? 0 : -1;
+            CategoryPicker.SelectedItem =
+    (CategoryPicker.ItemsSource as IEnumerable<Category>)?
+        .FirstOrDefault(c => c.Id == task.CategoryId);
 
 
         }
@@ -43,6 +53,7 @@ public partial class EditTaskPage : ContentPage
     {
         base.OnAppearing();
 
+        await LoadCategoriesAsync();
         await LoadTaskAsync();
     }
 
@@ -75,8 +86,7 @@ public partial class EditTaskPage : ContentPage
             ? DateTime.SpecifyKind(DueDatePicker.Date.Value, DateTimeKind.Utc)
             : null;
 
-        // General is currently our only available category.
-        _currentTask.CategoryId = 1;
+        _currentTask.CategoryId = ((Category)CategoryPicker.SelectedItem).Id;
 
         var response = await _httpClient.PutAsJsonAsync(
             $"https://localhost:7187/api/tasks/{_currentTask.Id}",

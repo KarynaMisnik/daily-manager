@@ -38,11 +38,10 @@
 
         <Picker
     x:Name="CategoryPicker"
-    Title="Select category">
-            <Picker.Items>
-                <x:String>General</x:String>
-            </Picker.Items>
-        </Picker>
+    Title="Select category"
+    ItemDisplayBinding="{Binding Name}" />
+    
+          
 
         <HorizontalStackLayout Spacing="10" Margin="0,20,0,0">
 

@@ -14,6 +14,13 @@ namespace LifeManager
 
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly WeatherService _weatherService = new WeatherService();
+        private List<Category> Categories = new();
+
+        private void OnCategoryFilterChanged(object sender, EventArgs e)
+        {
+            
+            DisplayTasks();
+        }
 
         private async Task LoadWeatherAsync()
         {
@@ -54,7 +61,7 @@ namespace LifeManager
                 $"{nameof(SettingsPage)}?fontSize={fontSize}"
             );
         }
-
+       
         private async Task LoadTasksAsync()
         {
             var tasks = await _httpClient.GetFromJsonAsync<List<TodoTask>>(
@@ -63,6 +70,34 @@ namespace LifeManager
             Tasks = tasks ?? new List<TodoTask>();
             DisplayTasks();
         }
+
+        private async void OnNewCategoryClicked(object sender, EventArgs e)
+        {
+            string categoryName = await DisplayPromptAsync(
+                "New Category",
+                "Enter a category name:",
+                accept: "Create",
+                cancel: "Cancel");
+
+            if (string.IsNullOrWhiteSpace(categoryName))
+            {
+                return;
+            }
+
+            Category newCategory = new Category
+            {
+                Name = categoryName.Trim()
+            };
+
+            var response = await _httpClient.PostAsJsonAsync(
+                "https://localhost:7187/api/categories",
+                newCategory);
+
+            response.EnsureSuccessStatusCode();
+
+            await LoadCategoriesAsync();
+        }
+
         public MainPage()
         {
 
@@ -75,6 +110,7 @@ namespace LifeManager
         {
 
             base.OnAppearing();
+            await LoadCategoriesAsync();
             await LoadTasksAsync();
             await LoadWeatherAsync();
             string savedColor = Preferences.Default.Get("BackgroundColor", "White");
@@ -109,6 +145,27 @@ namespace LifeManager
                 "Vampire" => Color.FromArgb("#FFB4C8"),
                 _ => Colors.Black
             });
+
+        }
+
+        private async Task LoadCategoriesAsync()
+        {
+            var categories = await _httpClient.GetFromJsonAsync<List<Category>>(
+                "https://localhost:7187/api/categories");
+
+            Categories = categories ?? new List<Category>();
+            CategoryPicker.ItemsSource = Categories;
+            CategoryPicker.SelectedIndex = 0;
+
+            var filterCategories = new List<Category>
+{
+    new Category { Id = 0, Name = "All categories" }
+};
+
+            filterCategories.AddRange(Categories);
+
+            CategoryFilterPicker.ItemsSource = filterCategories;
+            CategoryFilterPicker.SelectedIndex = 0;
         }
 
         private async void OnAddTaskClicked(object sender, EventArgs e)
@@ -122,7 +179,7 @@ namespace LifeManager
             {
                 Title = TaskEntry.Text.Trim(),
                 IsCompleted = false,
-                CategoryId = 1,
+                CategoryId = ((Category)CategoryPicker.SelectedItem).Id,
                 Priority = PriorityPicker.SelectedIndex + 1,
                 DueDate = DueDatePicker.Date.HasValue
     ? DateTime.SpecifyKind(DueDatePicker.Date.Value, DateTimeKind.Utc)
@@ -184,7 +241,10 @@ namespace LifeManager
             }
 
             TaskList.Children.Clear();
-            foreach(TodoTask task in Tasks)
+            foreach (TodoTask task in Tasks.Where(task =>
+     CategoryFilterPicker.SelectedItem is not Category selectedCategory
+     || selectedCategory.Id == 0
+     || task.CategoryId == selectedCategory.Id))
             {
                 Border taskCard = new Border
                 {
@@ -244,7 +304,8 @@ namespace LifeManager
 
                 Label categoryTag = new Label
                 {
-                    Text = task.CategoryId == 1 ? "General" : "Unknown",
+                    Text = Categories.FirstOrDefault(c => c.Id == task.CategoryId)?.Name
+       ?? "Unknown",
                     FontSize = 12,
                     Padding = new Thickness(10, 5),
                     BackgroundColor = Color.FromArgb("#E8E8E8"),
