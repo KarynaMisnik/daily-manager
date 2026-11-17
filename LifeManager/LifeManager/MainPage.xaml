@@ -17,13 +17,19 @@
     x:Name="WeatherLabel"
     Text="Loading weather..."
     FontSize="16" />
-			<Entry
-				x:Name="TaskEntry"
-				Placeholder="Enter a new task..." />
+            <Entry
+    x:Name="TaskEntry"
+    Placeholder="Enter a new task..."
+    TextColor="{DynamicResource ThemeText}"
+    PlaceholderColor="{DynamicResource ThemeSecondaryText}"
+    BackgroundColor="{DynamicResource ThemeSurface}" />
             <Picker
-    x:Name="PriorityPicker"
+      x:Name="PriorityPicker"
     Title="Select priority"
-    SelectedIndex="0">
+    SelectedIndex="0"
+    TextColor="{DynamicResource ThemeText}"
+    TitleColor="{DynamicResource ThemeSecondaryText}"
+    BackgroundColor="{DynamicResource ThemeSurface}">
                 <Picker.Items>
                     <x:String>Low</x:String>
                     <x:String>Medium</x:String>
@@ -32,7 +38,8 @@
             </Picker>
             <DatePicker
     x:Name="DueDatePicker"
-    Format="dd.MM.yyyy" />
+    Format="dd.MM.yyyy"
+    TextColor="{DynamicResource ThemeText}"/>
             <Picker
     x:Name="CategoryPicker"
     Title="Select category"

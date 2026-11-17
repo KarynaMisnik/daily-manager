@@ -41,4 +41,25 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- LifeManager custom theme colors -->
+    <Color x:Key="ThemeBackground">#FFFFFF</Color>
+    <Color x:Key="ThemeSurface">#F5F5F5</Color>
+    <Color x:Key="ThemeText">#202124</Color>
+    <Color x:Key="ThemeSecondaryText">#666666</Color>
+    <Color x:Key="ThemeAccent">#2563EB</Color>
+    <Color x:Key="ThemeBorder">#DDDDDD</Color>
+    <!-- Priority colors -->
+    <Color x:Key="PriorityHigh">#F08080</Color>
+    <Color x:Key="PriorityMedium">#F2BE66</Color>
+    <Color x:Key="PriorityLow">#78C9A3</Color>
+    <!-- Category tag colors -->
+    <Color x:Key="CategoryColor0">#DCC6F2</Color>
+    <Color x:Key="CategoryColor1">#B8E6C9</Color>
+    <Color x:Key="CategoryColor2">#BBDDF5</Color>
+    <Color x:Key="CategoryColor3">#F8E5A3</Color>
+    <Color x:Key="CategoryColor4">#F4C4D8</Color>
+    <Color x:Key="CategoryColor5">#F7D0AD</Color>
+    <Color x:Key="CategoryColor6">#C5E7E4</Color>
+    <Color x:Key="CategoryColor7">#D4D7F5</Color>
 </ResourceDictionary>
