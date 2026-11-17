@@ -115,36 +115,20 @@ namespace LifeManager
             await LoadWeatherAsync();
             string savedColor = Preferences.Default.Get("BackgroundColor", "White");
 
-            BackgroundColor = savedColor switch
-            {
-                "Beige" => Color.FromArgb("#F5F5DC"),
-                "Light Blue" => Color.FromArgb("#E3F2FD"),
-                "Dark" => Color.FromArgb("#17191E"),
-                "Vampire" => Color.FromArgb("#280D19"),
-                _ => Colors.White
-            };
-            PageTitle.TextColor = savedColor switch
-            {
-                "Dark" => Colors.White,
-                "Vampire" => Color.FromArgb("#FFB4C8"),
-                _ => Colors.Black
-            };
+            ThemeService.ApplyTheme(savedColor);
 
-            Shell.SetBackgroundColor(this, savedColor switch
-            {
-                "Dark" => Color.FromArgb("#17191E"),
-                "Vampire" => Color.FromArgb("#280D19"),
-                "Beige" => Color.FromArgb("#F5F5DC"),
-                "Light Blue" => Color.FromArgb("#E3F2FD"),
-                _ => Colors.White
-            });
 
-            Shell.SetTitleColor(this, savedColor switch
-            {
-                "Dark" => Colors.White,
-                "Vampire" => Color.FromArgb("#FFB4C8"),
-                _ => Colors.Black
-            });
+            DueDatePicker.SetDynamicResource(
+    DatePicker.TextColorProperty,
+    "ThemeText"
+);
+
+            SetDynamicResource(BackgroundColorProperty, "ThemeBackground");
+
+            PageTitle.SetDynamicResource(
+                Label.TextColorProperty,
+                "ThemeText"
+            );
 
         }
 
@@ -248,8 +232,7 @@ namespace LifeManager
             {
                 Border taskCard = new Border
                 {
-                    StrokeThickness = 1,
-                    Stroke = Colors.LightGray,
+                    StrokeThickness = 0.5,
                     StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle
                     {
                         CornerRadius = new CornerRadius(12)
@@ -257,6 +240,16 @@ namespace LifeManager
                     Padding = new Thickness(12),
                     Margin = new Thickness(0, 4)
                 };
+
+                taskCard.SetDynamicResource(
+                    Border.StrokeProperty,
+                    "ThemeBorder"
+                );
+
+                taskCard.SetDynamicResource(
+                    Border.BackgroundColorProperty,
+                    "ThemeSurface"
+                );
 
                 VerticalStackLayout cardContent = new VerticalStackLayout
                 {
@@ -285,9 +278,21 @@ namespace LifeManager
                     Text = priorityName,
                     FontSize = 12,
                     Padding = new Thickness(10, 5),
-                    BackgroundColor = Color.FromArgb("#E8E8E8"),
-                    TextColor = Colors.Black
+                    TextColor = Colors.Black,
+                    
                 };
+
+                string priorityColor = task.Priority switch
+                {
+                    3 => "PriorityHigh",
+                    2 => "PriorityMedium",
+                    _ => "PriorityLow"
+                };
+
+                priorityTag.SetDynamicResource(
+                    Label.BackgroundColorProperty,
+                    priorityColor
+                );
 
                 tagsRow.Children.Add(priorityTag);
 
@@ -297,7 +302,8 @@ namespace LifeManager
                     FontSize = 12,
                     Padding = new Thickness(10, 5),
                     BackgroundColor = Color.FromArgb("#E8E8E8"),
-                    TextColor = Colors.Black
+                    TextColor = Colors.Black,
+                    
                 };
 
                 tagsRow.Children.Add(dueDateTag);
@@ -305,12 +311,19 @@ namespace LifeManager
                 Label categoryTag = new Label
                 {
                     Text = Categories.FirstOrDefault(c => c.Id == task.CategoryId)?.Name
-       ?? "Unknown",
+           ?? "Unknown",
                     FontSize = 12,
                     Padding = new Thickness(10, 5),
-                    BackgroundColor = Color.FromArgb("#E8E8E8"),
                     TextColor = Colors.Black
                 };
+
+                // Select a consistent color based on CategoryId
+                int colorIndex = task.CategoryId % 8; // calculates the remainder after division
+
+                categoryTag.SetDynamicResource(
+                    Label.BackgroundColorProperty,
+                    $"CategoryColor{colorIndex}"
+                );
 
                 tagsRow.Children.Add(categoryTag);
 
@@ -319,16 +332,15 @@ namespace LifeManager
                     Text = task.Title,
                     VerticalOptions = LayoutOptions.Center,
                     TextDecorations = task.IsCompleted
-    ? TextDecorations.Strikethrough
-    : TextDecorations.None,
-    FontSize = Preferences.Default.Get("TaskFontSize", 16),
-                    TextColor = Preferences.Default.Get("BackgroundColor", "White") switch
-                    {
-                        "Dark" => Colors.White,
-                        "Vampire" => Color.FromArgb("#FFB4C8"),
-                        _ => Colors.Black
-                    },
+           ? TextDecorations.Strikethrough
+           : TextDecorations.None,
+                    FontSize = Preferences.Default.Get("TaskFontSize", 16)
                 };
+
+                taskLabel.SetDynamicResource(
+                    Label.TextColorProperty,
+                    "ThemeText"
+                );
 
 
                 Button deleteButton = new Button
@@ -363,20 +375,20 @@ namespace LifeManager
 
                 CheckBox doneCheckBox = new CheckBox()
                 {
-                    IsChecked = task.IsCompleted
+                    IsChecked = task.IsCompleted,
+                    Margin = new Thickness(0, 0, -20, 0)
 
                 };
                 Label doneLabel = new Label
                 {
                     Text = "Done",
-                    VerticalOptions = LayoutOptions.Center,
-                    TextColor = Preferences.Default.Get("BackgroundColor", "White") switch
-                    {
-                        "Dark" => Colors.White,
-                        "Vampire" => Color.FromArgb("#FFB4C8"),
-                        _ => Colors.Black
-                    }
+                    VerticalOptions = LayoutOptions.Center
                 };
+
+                doneLabel.SetDynamicResource(
+                    Label.TextColorProperty,
+                    "ThemeText"
+                );
 
                 doneCheckBox.CheckedChanged += async (sender, e) =>
                 {
