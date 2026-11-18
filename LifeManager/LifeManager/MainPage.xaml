@@ -2,13 +2,31 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LifeManager.MainPage">
-
-	<ScrollView>
+  
+    <ScrollView>
 		<VerticalStackLayout Padding="20" Spacing="15">
-            <Button
-    Text="Settings"
-    Clicked="OnSettingsClicked" />
-			<Label
+            <Grid ColumnDefinitions="*,Auto">
+
+                <Button
+    Grid.Column="1"
+    Text="⚙"
+    FontSize="28"
+    TextColor="{DynamicResource ThemeText}"
+    BackgroundColor="Transparent"
+    BorderWidth="0"
+    Padding="5"
+    WidthRequest="45"
+    HeightRequest="45"
+    Clicked="OnSettingsClicked"
+    SemanticProperties.Description="Open settings" />
+
+                <!-- ColumnDefinitions="*,Auto" creates two columns.
+* takes the available space on the left.
+Auto takes only the space needed for the button.
+Grid.Column="1" places Settings in the right column. -->
+
+            </Grid>
+            <Label
         Text="My To-Do List"
         x:Name="PageTitle"
         FontSize="24"
@@ -23,34 +41,62 @@
     TextColor="{DynamicResource ThemeText}"
     PlaceholderColor="{DynamicResource ThemeSecondaryText}"
     BackgroundColor="{DynamicResource ThemeSurface}" />
-            <Picker
-      x:Name="PriorityPicker"
-    Title="Select priority"
-    SelectedIndex="0"
-    TextColor="{DynamicResource ThemeText}"
-    TitleColor="{DynamicResource ThemeSecondaryText}"
-    BackgroundColor="{DynamicResource ThemeSurface}">
-                <Picker.Items>
-                    <x:String>Low</x:String>
-                    <x:String>Medium</x:String>
-                    <x:String>High</x:String>
-                </Picker.Items>
-            </Picker>
-            <DatePicker
-    x:Name="DueDatePicker"
-    Format="dd.MM.yyyy"
-    TextColor="{DynamicResource ThemeText}"/>
-            <Picker
-    x:Name="CategoryPicker"
-    Title="Select category"
-    ItemDisplayBinding="{Binding Name}" />
+            <Grid ColumnDefinitions="*,*,2*" ColumnSpacing="12">
+
+                <!-- Priority -->
+                <Picker
+        Grid.Column="0"
+        x:Name="PriorityPicker"
+        Title="Select priority"
+        SelectedIndex="0"
+        TextColor="{DynamicResource ThemeText}"
+        TitleColor="{DynamicResource ThemeSecondaryText}"
+        BackgroundColor="{DynamicResource ThemeSurface}"
+        VerticalOptions="End"            
+                    >
+
+                    <Picker.Items>
+                        <x:String>Low</x:String>
+                        <x:String>Medium</x:String>
+                        <x:String>High</x:String>
+                    </Picker.Items>
+
+                </Picker>
+
+                <!-- Due date -->
+                <DatePicker
+        Grid.Column="1"
+        x:Name="DueDatePicker"
+        Format="dd.MM.yyyy"
+        TextColor="{DynamicResource ThemeText}" 
+        VerticalOptions="End"            
+                    />
+
+                <!-- Category -->
+                <Picker
+        Grid.Column="2"
+        x:Name="CategoryPicker"
+        Title="Select category"
+        ItemDisplayBinding="{Binding Name}" 
+        VerticalOptions="End"            
+                    />
+
+            </Grid>
             <!-- Display the category name instead of the Category object -->
-            <Button
-    Text="+ New Category"
-    Clicked="OnNewCategoryClicked" />
-            <Button
-    Text="Add task"
-    Clicked="OnAddTaskClicked" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+
+                <Button
+        Grid.Column="0"
+        Text="+ New Category"
+        HorizontalOptions="Start"
+        Clicked="OnNewCategoryClicked" />
+
+                <Button
+        Grid.Column="1"
+        Text="Add Task"
+        Clicked="OnAddTaskClicked" />
+
+            </Grid>
 
             <Label
     Text="Top 3 Priority Tasks"
@@ -61,11 +107,24 @@
     x:Name="TopTasksList"
     Spacing="8" />
 
-            <Picker
-    x:Name="CategoryFilterPicker"
-    Title="Filter tasks by category"
-    ItemDisplayBinding="{Binding Name}" 
-    SelectedIndexChanged="OnCategoryFilterChanged"/>
+            <Grid ColumnDefinitions="*,Auto">
+
+                <Label
+        Grid.Column="0"
+        Text="My Tasks"
+        FontSize="20"
+        FontAttributes="Bold"
+        VerticalOptions="Center" />
+
+                <Picker
+        Grid.Column="1"
+        x:Name="CategoryFilterPicker"
+        Title="All categories"
+        WidthRequest="200"
+        ItemDisplayBinding="{Binding Name}"
+        SelectedIndexChanged="OnCategoryFilterChanged" />
+
+            </Grid>
 
             <VerticalStackLayout
                 x:Name="TaskList"

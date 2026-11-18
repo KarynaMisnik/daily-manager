@@ -201,22 +201,38 @@ namespace LifeManager
                     _ => "Low"
                 };
 
-                VerticalStackLayout taskLayout = new VerticalStackLayout
+                HorizontalStackLayout taskLayout = new HorizontalStackLayout
                 {
-                    Spacing = 4
+                    Spacing = 12
                 };
 
                 Label titleLabel = new Label
                 {
                     Text = task.Title,
-                    FontSize = 16
+                    FontSize = 16,
+                    VerticalOptions = LayoutOptions.Center
                 };
 
                 Label priorityLabel = new Label
                 {
                     Text = priorityName,
-                    FontSize = 12
+                    FontSize = 12,
+                    Padding = new Thickness(10, 5),
+                    TextColor = Colors.Black,
+                    VerticalOptions = LayoutOptions.Center
                 };
+
+                string priorityColor = task.Priority switch
+                {
+                    3 => "PriorityHigh",
+                    2 => "PriorityMedium",
+                    _ => "PriorityLow"
+                };
+
+                priorityLabel.SetDynamicResource(
+                    Label.BackgroundColorProperty,
+                    priorityColor
+                );
 
                 taskLayout.Children.Add(titleLabel);
                 taskLayout.Children.Add(priorityLabel);
