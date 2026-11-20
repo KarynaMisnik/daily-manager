@@ -5,7 +5,9 @@
     xmlns:local="clr-namespace:LifeManager"
     Title="LifeManager"
     Shell.BackgroundColor="{DynamicResource ThemeBackground}"
-    Shell.TitleColor="{DynamicResource ThemeText}">
+    Shell.TitleColor="{DynamicResource ThemeText}"
+   Shell.ForegroundColor="{DynamicResource ThemeAccent}"
+   >
 
     <ShellContent
         Title="Home"

@@ -1,7 +1,8 @@
 ﻿
 using System.Net.Http.Json;
-using LifeManager.Services;
 using LifeManager.Models;
+using LifeManager.Services;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace LifeManager
 {
@@ -201,25 +202,50 @@ namespace LifeManager
                     _ => "Low"
                 };
 
-                VerticalStackLayout taskLayout = new VerticalStackLayout
+                HorizontalStackLayout taskLayout = new HorizontalStackLayout
                 {
-                    Spacing = 4
+                    Spacing = 12
                 };
 
                 Label titleLabel = new Label
                 {
                     Text = task.Title,
-                    FontSize = 16
+                    FontSize = 16,
+                    VerticalOptions = LayoutOptions.Center
                 };
 
                 Label priorityLabel = new Label
                 {
-                    Text = priorityName,
-                    FontSize = 12
+                    Text = priorityName.ToUpper(),
+                    FontSize = 12,
+                    Padding = new Thickness(10, 5),
+                    TextColor = Colors.Black,
+                    VerticalOptions = LayoutOptions.Center
                 };
 
+                string priorityColor = task.Priority switch
+                {
+                    3 => "PriorityHigh",
+                    2 => "PriorityMedium",
+                    _ => "PriorityLow"
+                };
+
+                Border topPriorityBadge = new Border
+                {
+                    Content = priorityLabel,
+                    StrokeThickness = 0,
+                    StrokeShape = new RoundRectangle
+                    {
+                        CornerRadius = new CornerRadius(8)
+                    }
+                };
+
+                topPriorityBadge.SetDynamicResource(
+                    Border.BackgroundColorProperty,
+                    priorityColor
+                );
                 taskLayout.Children.Add(titleLabel);
-                taskLayout.Children.Add(priorityLabel);
+                taskLayout.Children.Add(topPriorityBadge);
 
                 TopTasksList.Children.Add(taskLayout);
             }
@@ -256,9 +282,17 @@ namespace LifeManager
                     Spacing = 8
                 };
 
-                HorizontalStackLayout taskRow = new HorizontalStackLayout()
+                Grid taskRow = new Grid
                 {
-                    Spacing = 10
+                    ColumnDefinitions =
+    {
+       new ColumnDefinition(GridLength.Auto), // Title
+        new ColumnDefinition(GridLength.Auto), // Checkbox
+        new ColumnDefinition(GridLength.Star), // Empty flexible space
+        new ColumnDefinition(GridLength.Auto), // Edit
+        new ColumnDefinition(GridLength.Auto)  // Delete
+    },
+                    ColumnSpacing = 8
                 };
 
                 HorizontalStackLayout tagsRow = new HorizontalStackLayout
@@ -275,7 +309,7 @@ namespace LifeManager
 
                 Label priorityTag = new Label
                 {
-                    Text = priorityName,
+                    Text = priorityName.ToUpper(),
                     FontSize = 12,
                     Padding = new Thickness(10, 5),
                     TextColor = Colors.Black,
@@ -289,29 +323,27 @@ namespace LifeManager
                     _ => "PriorityLow"
                 };
 
-                priorityTag.SetDynamicResource(
-                    Label.BackgroundColorProperty,
+                Border priorityBadge = new Border
+                {
+                    Content = priorityTag,
+                    StrokeThickness = 0,
+                    StrokeShape = new RoundRectangle
+                    {
+                        CornerRadius = new CornerRadius(8)
+                    }
+                };
+
+                priorityBadge.SetDynamicResource(
+                    Border.BackgroundColorProperty,
                     priorityColor
                 );
 
-                tagsRow.Children.Add(priorityTag);
-
-                Label dueDateTag = new Label
-                {
-                    Text = task.DueDate?.ToString("dd.MM.yyyy") ?? "No due date",
-                    FontSize = 12,
-                    Padding = new Thickness(10, 5),
-                    BackgroundColor = Color.FromArgb("#E8E8E8"),
-                    TextColor = Colors.Black,
-                    
-                };
-
-                tagsRow.Children.Add(dueDateTag);
+                tagsRow.Children.Add(priorityBadge);
 
                 Label categoryTag = new Label
                 {
                     Text = Categories.FirstOrDefault(c => c.Id == task.CategoryId)?.Name
-           ?? "Unknown",
+       ?? "Unknown",
                     FontSize = 12,
                     Padding = new Thickness(10, 5),
                     TextColor = Colors.Black
@@ -320,12 +352,59 @@ namespace LifeManager
                 // Select a consistent color based on CategoryId
                 int colorIndex = task.CategoryId % 8; // calculates the remainder after division
 
-                categoryTag.SetDynamicResource(
-                    Label.BackgroundColorProperty,
+                Border categoryBadge = new Border
+                {
+                    Content = categoryTag,
+                    StrokeThickness = 0,
+                    StrokeShape = new RoundRectangle
+                    {
+                        CornerRadius = new CornerRadius(8)
+                    }
+                };
+
+                categoryBadge.SetDynamicResource(
+                    Border.BackgroundColorProperty,
                     $"CategoryColor{colorIndex}"
                 );
 
-                tagsRow.Children.Add(categoryTag);
+                tagsRow.Children.Add(categoryBadge);
+
+                Label dueDateTag = new Label
+                {
+                    Text = $"◷ {task.DueDate?.ToString("dd.MM.yyyy") ?? "No due date"}",
+                    FontSize = 12,
+                    Padding = new Thickness(10, 5),
+                    VerticalTextAlignment = TextAlignment.Center
+                };
+
+                dueDateTag.SetDynamicResource(
+                    Label.TextColorProperty,
+                    "ThemeText"
+                );
+
+                Border dueDateBadge = new Border
+                {
+                    Content = dueDateTag,
+                    StrokeThickness = 1,
+                    StrokeShape = new RoundRectangle
+                    {
+                        CornerRadius = new CornerRadius(8)
+                    }
+                };
+
+                dueDateBadge.SetDynamicResource(
+                    Border.BackgroundColorProperty,
+                    "ThemeSurface"
+                );
+
+                dueDateBadge.SetDynamicResource(
+                    Border.StrokeProperty,
+                    "ThemeBorder"
+                );
+
+                tagsRow.Children.Add(dueDateBadge);
+
+            
 
                 Label taskLabel = new Label
                 {
@@ -345,8 +424,17 @@ namespace LifeManager
 
                 Button deleteButton = new Button
                 {
-                    Text = "Delete"
+                    Text = "🗑",
+                    FontSize = 20,
+                    Padding = new Thickness(4),
+                    WidthRequest = 32,
+                    HeightRequest = 32,
+                    BackgroundColor = Colors.Transparent,
+                    BorderWidth = 0
                 };
+
+                deleteButton.SetDynamicResource(
+                    Button.TextColorProperty, "ThemeText");
 
                 deleteButton.Clicked += async (sender, e) =>
                 {
@@ -361,8 +449,17 @@ namespace LifeManager
 
                 Button editButton = new Button
                 {
-                    Text = "Edit"
+                    Text = "✎",
+                    FontSize = 20,
+                    Padding = new Thickness(4),
+                    WidthRequest = 32,
+                    HeightRequest = 32,
+                    BackgroundColor = Colors.Transparent,
+                    BorderWidth = 0
                 };
+
+                editButton.SetDynamicResource(
+                    Button.TextColorProperty, "ThemeText");
 
 
                 editButton.Clicked += async (sender, e) =>
@@ -407,13 +504,10 @@ namespace LifeManager
 
 
 
-                taskRow.Children.Add(taskLabel);
-              
-                taskRow.Children.Add(editButton);
-             
-                taskRow.Children.Add(deleteButton);
-                taskRow.Children.Add(doneCheckBox);
-                taskRow.Children.Add(doneLabel);
+                taskRow.Add(taskLabel, 0, 0);
+                taskRow.Add(doneCheckBox, 1, 0);
+                taskRow.Add(editButton, 3, 0);
+                taskRow.Add(deleteButton, 4, 0);
 
                 cardContent.Children.Add(taskRow);
                 cardContent.Children.Add(tagsRow);
