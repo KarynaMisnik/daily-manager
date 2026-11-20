@@ -285,41 +285,61 @@ namespace LifeManager
                 TopTasksList.Children.Add(taskLayout);
             }
 
-            TaskList.Children.Clear();
-            foreach (TodoTask task in Tasks.Where(task =>
-     CategoryFilterPicker.SelectedItem is not Category selectedCategory
-     || selectedCategory.Id == 0
-     || task.CategoryId == selectedCategory.Id))
+            var filteredTasks = Tasks.Where(task =>
+      CategoryFilterPicker.SelectedItem is not Category selectedCategory
+      || selectedCategory.Id == 0
+      || task.CategoryId == selectedCategory.Id
+  ).ToList();
+
+            TaskList.ItemTemplate = new DataTemplate(() =>
             {
-                Border taskCard = new Border
+                var container = new ContentView();
+
+                container.BindingContextChanged += (sender, e) =>
                 {
-                    StrokeThickness = 0.5,
-                    StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle
+                    if (container.BindingContext is TodoTask task)
                     {
-                        CornerRadius = new CornerRadius(12)
-                    },
-                    Padding = new Thickness(12),
-                    Margin = new Thickness(0, 4)
+                        container.Content = CreateTaskCard(task);
+                    }
                 };
 
-                taskCard.SetDynamicResource(
-                    Border.StrokeProperty,
-                    "ThemeBorder"
-                );
+                return container;
+            });
 
-                taskCard.SetDynamicResource(
-                    Border.BackgroundColorProperty,
-                    "ThemeSurface"
-                );
+            TaskList.ItemsSource = filteredTasks;
+        }
 
-                VerticalStackLayout cardContent = new VerticalStackLayout
+        private Border CreateTaskCard(TodoTask task)
+        {
+            Border taskCard = new Border
+            {
+                StrokeThickness = 0.5,
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle
                 {
-                    Spacing = 8
-                };
+                    CornerRadius = new CornerRadius(12)
+                },
+                Padding = new Thickness(12),
+                Margin = new Thickness(0, 4)
+            };
 
-                Grid taskRow = new Grid
-                {
-                    ColumnDefinitions =
+            taskCard.SetDynamicResource(
+                Border.StrokeProperty,
+                "ThemeBorder"
+            );
+
+            taskCard.SetDynamicResource(
+                Border.BackgroundColorProperty,
+                "ThemeSurface"
+            );
+
+            VerticalStackLayout cardContent = new VerticalStackLayout
+            {
+                Spacing = 8
+            };
+
+            Grid taskRow = new Grid
+            {
+                ColumnDefinitions =
     {
        new ColumnDefinition(GridLength.Auto), // Title
         new ColumnDefinition(GridLength.Auto), // Checkbox
@@ -327,228 +347,228 @@ namespace LifeManager
         new ColumnDefinition(GridLength.Auto), // Edit
         new ColumnDefinition(GridLength.Auto)  // Delete
     },
-                    ColumnSpacing = 8
-                };
+                ColumnSpacing = 8
+            };
 
-                HorizontalStackLayout tagsRow = new HorizontalStackLayout
+            HorizontalStackLayout tagsRow = new HorizontalStackLayout
+            {
+                Spacing = 8
+            };
+
+            string priorityName = task.Priority switch
+            {
+                3 => "High",
+                2 => "Medium",
+                _ => "Low"
+            };
+
+            Label priorityTag = new Label
+            {
+                Text = priorityName.ToUpper(),
+                FontSize = 12,
+                Padding = new Thickness(10, 5),
+                TextColor = Colors.Black,
+
+            };
+
+            string priorityColor = task.Priority switch
+            {
+                3 => "PriorityHigh",
+                2 => "PriorityMedium",
+                _ => "PriorityLow"
+            };
+
+            Border priorityBadge = new Border
+            {
+                Content = priorityTag,
+                StrokeThickness = 0,
+                StrokeShape = new RoundRectangle
                 {
-                    Spacing = 8
-                };
+                    CornerRadius = new CornerRadius(8)
+                }
+            };
 
-                string priorityName = task.Priority switch
+            priorityBadge.SetDynamicResource(
+                Border.BackgroundColorProperty,
+                priorityColor
+            );
+
+            tagsRow.Children.Add(priorityBadge);
+
+            Label categoryTag = new Label
+            {
+                Text = Categories.FirstOrDefault(c => c.Id == task.CategoryId)?.Name
+   ?? "Unknown",
+                FontSize = 12,
+                Padding = new Thickness(10, 5),
+                TextColor = Colors.Black
+            };
+
+            // Select a consistent color based on CategoryId
+            int colorIndex = task.CategoryId % 8; // calculates the remainder after division
+
+            Border categoryBadge = new Border
+            {
+                Content = categoryTag,
+                StrokeThickness = 0,
+                StrokeShape = new RoundRectangle
                 {
-                    3 => "High",
-                    2 => "Medium",
-                    _ => "Low"
-                };
+                    CornerRadius = new CornerRadius(8)
+                }
+            };
 
-                Label priorityTag = new Label
+            categoryBadge.SetDynamicResource(
+                Border.BackgroundColorProperty,
+                $"CategoryColor{colorIndex}"
+            );
+
+            tagsRow.Children.Add(categoryBadge);
+
+            Label dueDateTag = new Label
+            {
+                Text = $"◷ {task.DueDate?.ToString("dd.MM.yyyy") ?? "No due date"}",
+                FontSize = 12,
+                Padding = new Thickness(10, 5),
+                VerticalTextAlignment = TextAlignment.Center
+            };
+
+            dueDateTag.SetDynamicResource(
+                Label.TextColorProperty,
+                "ThemeText"
+            );
+
+            Border dueDateBadge = new Border
+            {
+                Content = dueDateTag,
+                StrokeThickness = 1,
+                StrokeShape = new RoundRectangle
                 {
-                    Text = priorityName.ToUpper(),
-                    FontSize = 12,
-                    Padding = new Thickness(10, 5),
-                    TextColor = Colors.Black,
-                    
-                };
+                    CornerRadius = new CornerRadius(8)
+                }
+            };
 
-                string priorityColor = task.Priority switch
-                {
-                    3 => "PriorityHigh",
-                    2 => "PriorityMedium",
-                    _ => "PriorityLow"
-                };
+            dueDateBadge.SetDynamicResource(
+                Border.BackgroundColorProperty,
+                "ThemeSurface"
+            );
 
-                Border priorityBadge = new Border
-                {
-                    Content = priorityTag,
-                    StrokeThickness = 0,
-                    StrokeShape = new RoundRectangle
-                    {
-                        CornerRadius = new CornerRadius(8)
-                    }
-                };
+            dueDateBadge.SetDynamicResource(
+                Border.StrokeProperty,
+                "ThemeBorder"
+            );
 
-                priorityBadge.SetDynamicResource(
-                    Border.BackgroundColorProperty,
-                    priorityColor
+            tagsRow.Children.Add(dueDateBadge);
+
+
+
+            Label taskLabel = new Label
+            {
+                Text = task.Title,
+                VerticalOptions = LayoutOptions.Center,
+                TextDecorations = task.IsCompleted
+       ? TextDecorations.Strikethrough
+       : TextDecorations.None,
+                FontSize = Preferences.Default.Get("TaskFontSize", 16)
+            };
+
+            taskLabel.SetDynamicResource(
+                Label.TextColorProperty,
+                "ThemeText"
+            );
+
+
+            Button deleteButton = new Button
+            {
+                Text = "🗑",
+                FontSize = 20,
+                Padding = new Thickness(4),
+                WidthRequest = 32,
+                HeightRequest = 32,
+                BackgroundColor = Colors.Transparent,
+                BorderWidth = 0
+            };
+
+            deleteButton.SetDynamicResource(
+                Button.TextColorProperty, "ThemeText");
+
+            deleteButton.Clicked += async (sender, e) =>
+            {
+                var response = await _httpClient.DeleteAsync(
+                    $"https://localhost:7187/api/tasks/{task.Id}"
                 );
 
-                tagsRow.Children.Add(priorityBadge);
+                response.EnsureSuccessStatusCode();
 
-                Label categoryTag = new Label
-                {
-                    Text = Categories.FirstOrDefault(c => c.Id == task.CategoryId)?.Name
-       ?? "Unknown",
-                    FontSize = 12,
-                    Padding = new Thickness(10, 5),
-                    TextColor = Colors.Black
-                };
+                await LoadTasksAsync();
+            };
 
-                // Select a consistent color based on CategoryId
-                int colorIndex = task.CategoryId % 8; // calculates the remainder after division
+            Button editButton = new Button
+            {
+                Text = "✎",
+                FontSize = 20,
+                Padding = new Thickness(4),
+                WidthRequest = 32,
+                HeightRequest = 32,
+                BackgroundColor = Colors.Transparent,
+                BorderWidth = 0
+            };
 
-                Border categoryBadge = new Border
-                {
-                    Content = categoryTag,
-                    StrokeThickness = 0,
-                    StrokeShape = new RoundRectangle
-                    {
-                        CornerRadius = new CornerRadius(8)
-                    }
-                };
+            editButton.SetDynamicResource(
+                Button.TextColorProperty, "ThemeText");
 
-                categoryBadge.SetDynamicResource(
-                    Border.BackgroundColorProperty,
-                    $"CategoryColor{colorIndex}"
+
+            editButton.Clicked += async (sender, e) =>
+            {
+                await Shell.Current.GoToAsync(
+                    $"{nameof(EditTaskPage)}?taskId={task.Id}"
                 );
-
-                tagsRow.Children.Add(categoryBadge);
-
-                Label dueDateTag = new Label
-                {
-                    Text = $"◷ {task.DueDate?.ToString("dd.MM.yyyy") ?? "No due date"}",
-                    FontSize = 12,
-                    Padding = new Thickness(10, 5),
-                    VerticalTextAlignment = TextAlignment.Center
-                };
-
-                dueDateTag.SetDynamicResource(
-                    Label.TextColorProperty,
-                    "ThemeText"
-                );
-
-                Border dueDateBadge = new Border
-                {
-                    Content = dueDateTag,
-                    StrokeThickness = 1,
-                    StrokeShape = new RoundRectangle
-                    {
-                        CornerRadius = new CornerRadius(8)
-                    }
-                };
-
-                dueDateBadge.SetDynamicResource(
-                    Border.BackgroundColorProperty,
-                    "ThemeSurface"
-                );
-
-                dueDateBadge.SetDynamicResource(
-                    Border.StrokeProperty,
-                    "ThemeBorder"
-                );
-
-                tagsRow.Children.Add(dueDateBadge);
-
-            
-
-                Label taskLabel = new Label
-                {
-                    Text = task.Title,
-                    VerticalOptions = LayoutOptions.Center,
-                    TextDecorations = task.IsCompleted
-           ? TextDecorations.Strikethrough
-           : TextDecorations.None,
-                    FontSize = Preferences.Default.Get("TaskFontSize", 16)
-                };
-
-                taskLabel.SetDynamicResource(
-                    Label.TextColorProperty,
-                    "ThemeText"
-                );
+            };
 
 
-                Button deleteButton = new Button
-                {
-                    Text = "🗑",
-                    FontSize = 20,
-                    Padding = new Thickness(4),
-                    WidthRequest = 32,
-                    HeightRequest = 32,
-                    BackgroundColor = Colors.Transparent,
-                    BorderWidth = 0
-                };
+            CheckBox doneCheckBox = new CheckBox()
+            {
+                IsChecked = task.IsCompleted,
+                Margin = new Thickness(0, 0, -20, 0)
 
-                deleteButton.SetDynamicResource(
-                    Button.TextColorProperty, "ThemeText");
+            };
+            Label doneLabel = new Label
+            {
+                Text = "Done",
+                VerticalOptions = LayoutOptions.Center
+            };
 
-                deleteButton.Clicked += async (sender, e) =>
-                {
-                    var response = await _httpClient.DeleteAsync(
-                        $"https://localhost:7187/api/tasks/{task.Id}"
-                    );
+            doneLabel.SetDynamicResource(
+                Label.TextColorProperty,
+                "ThemeText"
+            );
 
-                    response.EnsureSuccessStatusCode();
+            doneCheckBox.CheckedChanged += async (sender, e) =>
+            {
+                task.IsCompleted = e.Value;
 
-                    await LoadTasksAsync();
-                };
-
-                Button editButton = new Button
-                {
-                    Text = "✎",
-                    FontSize = 20,
-                    Padding = new Thickness(4),
-                    WidthRequest = 32,
-                    HeightRequest = 32,
-                    BackgroundColor = Colors.Transparent,
-                    BorderWidth = 0
-                };
-
-                editButton.SetDynamicResource(
-                    Button.TextColorProperty, "ThemeText");
-
-
-                editButton.Clicked += async (sender, e) =>
-                {
-                    await Shell.Current.GoToAsync(
-                        $"{nameof(EditTaskPage)}?taskId={task.Id}"
-                    );
-                };
-
-
-                CheckBox doneCheckBox = new CheckBox()
-                {
-                    IsChecked = task.IsCompleted,
-                    Margin = new Thickness(0, 0, -20, 0)
-
-                };
-                Label doneLabel = new Label
-                {
-                    Text = "Done",
-                    VerticalOptions = LayoutOptions.Center
-                };
-
-                doneLabel.SetDynamicResource(
-                    Label.TextColorProperty,
-                    "ThemeText"
-                );
-
-                doneCheckBox.CheckedChanged += async (sender, e) =>
-                {
-                    task.IsCompleted = e.Value;
-
-                    taskLabel.TextDecorations = task.IsCompleted ? TextDecorations.Strikethrough : TextDecorations.None;
-                    var response = await _httpClient.PutAsJsonAsync(
-    $"https://localhost:7187/api/tasks/{task.Id}",
-    task
+                taskLabel.TextDecorations = task.IsCompleted ? TextDecorations.Strikethrough : TextDecorations.None;
+                var response = await _httpClient.PutAsJsonAsync(
+$"https://localhost:7187/api/tasks/{task.Id}",
+task
 );
 
-                    response.EnsureSuccessStatusCode();
-                    await LoadTasksAsync();
-                };
+                response.EnsureSuccessStatusCode();
+                await LoadTasksAsync();
+            };
 
 
 
 
-                taskRow.Add(taskLabel, 0, 0);
-                taskRow.Add(doneCheckBox, 1, 0);
-                taskRow.Add(editButton, 3, 0);
-                taskRow.Add(deleteButton, 4, 0);
+            taskRow.Add(taskLabel, 0, 0);
+            taskRow.Add(doneCheckBox, 1, 0);
+            taskRow.Add(editButton, 3, 0);
+            taskRow.Add(deleteButton, 4, 0);
 
-                cardContent.Children.Add(taskRow);
-                cardContent.Children.Add(tagsRow);
-                taskCard.Content = cardContent;
-                TaskList.Children.Add(taskCard);
-            }
+            cardContent.Children.Add(taskRow);
+            cardContent.Children.Add(tagsRow);
+            taskCard.Content = cardContent;
+
+            return taskCard;
         }
     }
 

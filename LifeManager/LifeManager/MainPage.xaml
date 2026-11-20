@@ -126,9 +126,9 @@ Grid.Column="1" places Settings in the right column. -->
 
             </Grid>
 
-            <VerticalStackLayout
-                x:Name="TaskList"
-                Spacing="10" />
+            <CollectionView
+    x:Name="TaskList"
+    SelectionMode="None" />
 
 		</VerticalStackLayout>
         
