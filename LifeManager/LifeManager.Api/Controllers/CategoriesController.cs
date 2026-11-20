@@ -2,7 +2,7 @@
 using LifeManager.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LifeManager.Api.Models;
+
 
 namespace LifeManager.Api.Controllers;
 

@@ -95,7 +95,22 @@ namespace LifeManager
                 "https://localhost:7187/api/categories",
                 newCategory);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<ApiValidationError>();
+
+                var message = error?.Errors.Values
+                    .SelectMany(messages => messages)
+                    .FirstOrDefault() ?? "Category name is invalid.";
+
+                await DisplayAlertAsync(
+                    "Validation error",
+                    message,
+                    "OK"
+                );
+
+                return;
+            }
 
             await LoadCategoriesAsync();
         }
