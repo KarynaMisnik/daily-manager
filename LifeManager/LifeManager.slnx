@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="LifeManager.Api/LifeManager.Api.csproj" Id="74911ea0-3c88-4c64-93f2-5375711d6fcf" />
+  <Project Path="LifeManager.Tests/LifeManager.Tests.csproj" Id="c4d00b0c-1146-4ef0-ae93-56c01075cc11" />
   <Project Path="LifeManager/LifeManager.csproj">
     <Deploy Solution="Debug|*" />
   </Project>
