@@ -306,6 +306,19 @@ namespace LifeManager
                 return container;
             });
 
+            if (SortPicker.SelectedIndex == 0) // Priority
+            {
+                filteredTasks = filteredTasks
+                    .OrderByDescending(task => task.Priority)
+                    .ToList();
+            }
+            else if (SortPicker.SelectedIndex == 1) // Due date
+            {
+                filteredTasks = filteredTasks
+                    .OrderBy(task => task.DueDate ?? DateTime.MaxValue)
+                    .ToList();
+            }
+
             TaskList.ItemsSource = filteredTasks;
         }
 
@@ -570,7 +583,16 @@ task
 
             return taskCard;
         }
+
+        // sorting tasks by due date or priority
+
+        private void OnSortChanged(object sender, EventArgs e)
+        {
+            DisplayTasks();
+        }
     }
+
+   
 
     public class ApiValidationError
     {
