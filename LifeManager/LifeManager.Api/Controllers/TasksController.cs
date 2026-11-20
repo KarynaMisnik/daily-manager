@@ -37,12 +37,12 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost] // tells ASP.NET Core to handle POST requests to /api/tasks
-    public async Task<IActionResult> CreateTask(TodoTask task)
+    public async Task<IActionResult> CreateTask(TodoTask task) // CreateTask(TodoTask task) receives the task data
     {
         _context.Tasks.Add(task); // tells EF Core to track the new task for insertion
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // saves it to PostgreSQL
 
-        return Ok(task); //returns the saved task, including its generated ID
+        return Ok(task); //returns the saved task (200 OK), including its generated ID
     }
 
     [HttpPut("{id}")]

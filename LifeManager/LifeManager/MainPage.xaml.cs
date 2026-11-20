@@ -4,6 +4,7 @@ using LifeManager.Models;
 using LifeManager.Services;
 using Microsoft.Maui.Controls.Shapes;
 
+
 namespace LifeManager
 {
     public partial class MainPage : ContentPage
@@ -175,7 +176,26 @@ namespace LifeManager
      newTask
  );
 
-            response.EnsureSuccessStatusCode();
+            System.Diagnostics.Debug.WriteLine(
+    $"POST status: {response.StatusCode}"
+);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<ApiValidationError>();
+
+                var message = error?.Errors.Values
+                    .SelectMany(messages => messages)
+                    .FirstOrDefault() ?? "Task title is invalid.";
+
+                await DisplayAlertAsync(
+                    "Validation error",
+                    message,
+                    "OK"
+                );
+
+                return;
+            }
 
             await LoadTasksAsync();
             TaskEntry.Text = "";
@@ -515,5 +535,10 @@ namespace LifeManager
                 TaskList.Children.Add(taskCard);
             }
         }
+    }
+
+    public class ApiValidationError
+    {
+        public Dictionary<string, string[]> Errors { get; set; } = new();
     }
 }
