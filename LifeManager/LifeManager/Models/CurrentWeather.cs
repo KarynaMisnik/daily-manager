@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace LifeManager.Models
 {
-    internal class CurrentWeather
+    public class CurrentWeather
     {
         [JsonPropertyName("temperature_2m")]
         public double Temperature { get; set; }

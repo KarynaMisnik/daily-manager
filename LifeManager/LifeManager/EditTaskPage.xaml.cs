@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
 using LifeManager.Models;
+using LifeManager.Interfaces;
+
 
 namespace LifeManager;
 
@@ -7,7 +9,8 @@ namespace LifeManager;
 [QueryProperty(nameof(TaskId), "taskId")]
 public partial class EditTaskPage : ContentPage
 {
-    private readonly HttpClient _httpClient = new HttpClient();
+    private readonly ITodoService _todoService;
+    private readonly ICategoryService _categoryService;
     private TodoTask? _currentTask;
     private string _taskId = string.Empty;
 
@@ -23,17 +26,14 @@ public partial class EditTaskPage : ContentPage
 
     private async Task LoadCategoriesAsync()
     {
-        var categories = await _httpClient.GetFromJsonAsync<List<Category>>(
-            "https://localhost:7187/api/categories");
+        var categories = await _categoryService.GetCategoriesAsync();
 
-        CategoryPicker.ItemsSource = categories ?? new List<Category>();
+        CategoryPicker.ItemsSource = categories;
     }
 
     private async Task LoadTaskAsync()
     {
-        TodoTask? task = await _httpClient.GetFromJsonAsync<TodoTask>(
-            $"https://localhost:7187/api/tasks/{TaskId}"
-        );
+        TodoTask? task = await _todoService.GetTaskByIdAsync(int.Parse(TaskId));
 
         if (task != null)
         {
@@ -88,17 +88,19 @@ public partial class EditTaskPage : ContentPage
 
         _currentTask.CategoryId = ((Category)CategoryPicker.SelectedItem).Id;
 
-        var response = await _httpClient.PutAsJsonAsync(
-            $"https://localhost:7187/api/tasks/{_currentTask.Id}",
-            _currentTask
-        );
-
-        response.EnsureSuccessStatusCode();
+        await _todoService.UpdateTaskAsync(_currentTask);
 
         await Shell.Current.GoToAsync("..");
     }
-    public EditTaskPage()
-	{
-		InitializeComponent();
-	}
+
+    // constructor
+    public EditTaskPage(
+     ITodoService todoService,
+     ICategoryService categoryService)
+    {
+        InitializeComponent();
+
+        _todoService = todoService;
+        _categoryService = categoryService;
+    }
 }

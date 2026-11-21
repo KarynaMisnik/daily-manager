@@ -1,10 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:LifeManager.Converters"
+             
              x:Class="LifeManager.MainPage">
-  
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:PriorityNameConverter x:Key="PriorityNameConverter" />
+            <converters:PriorityColorConverter x:Key="PriorityColorConverter" />
+        </ResourceDictionary>
+        
+    </ContentPage.Resources>
+
     <ScrollView>
+        
 		<VerticalStackLayout Padding="20" Spacing="15">
+
             <Grid ColumnDefinitions="*,Auto">
 
                 <Button
@@ -103,9 +115,39 @@ Grid.Column="1" places Settings in the right column. -->
     FontSize="20"
     FontAttributes="Bold" />
 
-            <VerticalStackLayout
+            <CollectionView
     x:Name="TopTasksList"
-    Spacing="8" />
+    ItemsSource="{Binding TopTasks}"
+    SelectionMode="None">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <HorizontalStackLayout Spacing="12" Padding="0,4">
+
+                            <Label
+                    Text="{Binding Title}"
+                    FontSize="16"
+                    VerticalOptions="Center" />
+
+                            <Border
+    BackgroundColor="{Binding Priority, Converter={StaticResource PriorityColorConverter}}"
+    StrokeThickness="0"
+    StrokeShape="RoundRectangle 8"
+    Padding="10,5">
+
+                                <Label
+        Text="{Binding Priority, Converter={StaticResource PriorityNameConverter}}"
+        FontSize="12"
+        TextColor="Black"
+        VerticalOptions="Center" />
+
+                            </Border>
+
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
 
             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
 
@@ -122,15 +164,15 @@ Grid.Column="1" places Settings in the right column. -->
         Title="All categories"
         WidthRequest="200"
         ItemDisplayBinding="{Binding Name}"
-        SelectedIndexChanged="OnCategoryFilterChanged" />
+        SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+        />
 
                 <Picker
         Grid.Column="2"
         x:Name="SortPicker"
         Title="Sort by"
         WidthRequest="130"
-        SelectedIndex="0"            
-        SelectedIndexChanged="OnSortChanged"
+        SelectedIndex="{Binding SelectedSortIndex, Mode=TwoWay}"
         TextColor="{DynamicResource ThemeText}"
         BackgroundColor="{DynamicResource ThemeSurface}">
 
@@ -145,7 +187,9 @@ Grid.Column="1" places Settings in the right column. -->
 
             <CollectionView
     x:Name="TaskList"
+    ItemsSource="{Binding FilteredTasks}"
     SelectionMode="None" />
+
 
 		</VerticalStackLayout>
         
