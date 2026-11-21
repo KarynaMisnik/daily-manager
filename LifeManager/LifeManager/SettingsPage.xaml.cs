@@ -1,6 +1,9 @@
+using LifeManager.ViewModels;
+using LifeManager.Services;
+
 namespace LifeManager;
 
-using LifeManager.Services;
+
 
 [QueryProperty(nameof(FontSize), "fontSize")]
 
@@ -16,33 +19,15 @@ public partial class SettingsPage : ContentPage
             }
         }
     }
-    public SettingsPage()
-	{
-		InitializeComponent();
+    public SettingsPage(SettingsViewModel viewModel)
+    {
+        InitializeComponent();
+
+        BindingContext = viewModel;
         FontSizeSlider.ValueChanged += (sender, e) =>
         {
-            Preferences.Default.Set("TaskFontSize", e.NewValue);
             FontPreview.FontSize = e.NewValue;
         };
 
-        BackgroundPicker.SelectedIndexChanged += (sender, e) =>
-        {
-            if (BackgroundPicker.SelectedIndex >= 0)
-            {
-                string selectedColor = BackgroundPicker.Items[
-                    BackgroundPicker.SelectedIndex
-                ];
-
-                Preferences.Default.Set("BackgroundColor", selectedColor);
-
-                ThemeService.ApplyTheme(selectedColor);
-            }
-        };
-
-        string savedColor = Preferences.Default.Get("BackgroundColor", "White");
-
-        int colorIndex = BackgroundPicker.Items.IndexOf(savedColor);
-
-        BackgroundPicker.SelectedIndex = colorIndex >= 0 ? colorIndex : 0;
     }
 }

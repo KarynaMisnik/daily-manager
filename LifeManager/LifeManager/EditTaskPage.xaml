@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:LifeManager.ViewModels"
+             x:DataType="viewmodels:EditTaskViewModel"
              x:Class="LifeManager.EditTaskPage"
              Title="EditTaskPage">
     <VerticalStackLayout Padding="20" Spacing="12">
@@ -14,13 +16,16 @@
 
         <Entry
         x:Name="TitleEntry"
+        Text="{Binding TaskTitle, Mode=TwoWay}"
         Placeholder="Enter task title" />
 
         <Label Text="Priority" />
 
         <Picker
     x:Name="PriorityPicker"
-    Title="Select priority">
+    Title="Select priority"
+    SelectedIndex="{Binding SelectedPriorityIndex, Mode=TwoWay}">
+    
             <Picker.Items>
                 <x:String>Low</x:String>
                 <x:String>Medium</x:String>
@@ -32,6 +37,7 @@
 
         <DatePicker
     x:Name="DueDatePicker"
+   Date="{Binding DueDate, Mode=TwoWay}"
     Format="dd.MM.yyyy" />
 
         <Label Text="Category" />
@@ -39,6 +45,8 @@
         <Picker
     x:Name="CategoryPicker"
     Title="Select category"
+    ItemsSource="{Binding Categories}"
+    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
     ItemDisplayBinding="{Binding Name}" />
     
           

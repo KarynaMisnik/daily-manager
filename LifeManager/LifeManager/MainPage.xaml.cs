@@ -3,56 +3,24 @@ using System.Net.Http.Json;
 using LifeManager.Models;
 using LifeManager.Services;
 using Microsoft.Maui.Controls.Shapes;
+using LifeManager.Interfaces;
+using LifeManager.ViewModels;
 
 
 namespace LifeManager
 {
     public partial class MainPage : ContentPage
     {
-        private List<TodoTask> Tasks = new List<TodoTask>();
-        // List<TodoTask> is a collection that can hold multiple task objects.
-        // Tasks is the name of that collection.
-        // private means it's accessible inside MainPage
+       
 
-        private readonly HttpClient _httpClient = new HttpClient();
-        private readonly WeatherService _weatherService = new WeatherService();
-        private List<Category> Categories = new();
-
-        private void OnCategoryFilterChanged(object sender, EventArgs e)
-        {
-            
-            DisplayTasks();
-        }
+    
+      
+        private readonly MainViewModel _viewModel;
+        
 
         private async Task LoadWeatherAsync()
         {
-            try
-            {
-                CurrentWeather? weather = await _weatherService.GetWeatherAsync();
-
-                if (weather != null)
-                {
-                    WeatherLabel.Text =
-                        $"Temperature: {weather.Temperature:F1}°C | Wind: {weather.WindSpeed:F1} m/s";
-
-                    if (weather.WindSpeed > 5)
-                    {
-                        WeatherLabel.Text += "\n🪁 Kitesurf weather!";
-                    }
-                }
-                else
-                {
-                    WeatherLabel.Text = "Weather data unavailable";
-                }
-            }
-            catch (HttpRequestException)
-            {
-                WeatherLabel.Text = "Unable to load weather. Check your internet connection.";
-            }
-            catch (TaskCanceledException)
-            {
-                WeatherLabel.Text = "Weather request timed out.";
-            }
+            await _viewModel.LoadWeatherCommand.ExecuteAsync(null);
         }
 
         private async void OnSettingsClicked(object sender, EventArgs e)
@@ -63,13 +31,11 @@ namespace LifeManager
                 $"{nameof(SettingsPage)}?fontSize={fontSize}"
             );
         }
-       
+
         private async Task LoadTasksAsync()
         {
-            var tasks = await _httpClient.GetFromJsonAsync<List<TodoTask>>(
-                "https://localhost:7187/api/tasks"
-            );
-            Tasks = tasks ?? new List<TodoTask>();
+            await _viewModel.LoadTasksCommand.ExecuteAsync(null);
+
             DisplayTasks();
         }
 
@@ -91,9 +57,7 @@ namespace LifeManager
                 Name = categoryName.Trim()
             };
 
-            var response = await _httpClient.PostAsJsonAsync(
-                "https://localhost:7187/api/categories",
-                newCategory);
+            var response = await _viewModel.CreateCategoryAsync(newCategory);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -115,13 +79,14 @@ namespace LifeManager
             await LoadCategoriesAsync();
         }
 
-        public MainPage()
+        // constructor
+        public MainPage(MainViewModel viewModel)
         {
-
-
             InitializeComponent();
 
-    }
+            _viewModel = viewModel;
+            BindingContext = viewModel;
+        }
 
         protected override async void OnAppearing()
         {
@@ -151,21 +116,9 @@ namespace LifeManager
 
         private async Task LoadCategoriesAsync()
         {
-            var categories = await _httpClient.GetFromJsonAsync<List<Category>>(
-                "https://localhost:7187/api/categories");
+            await _viewModel.LoadCategoriesAsync();
 
-            Categories = categories ?? new List<Category>();
-            CategoryPicker.ItemsSource = Categories;
             CategoryPicker.SelectedIndex = 0;
-
-            var filterCategories = new List<Category>
-{
-    new Category { Id = 0, Name = "All categories" }
-};
-
-            filterCategories.AddRange(Categories);
-
-            CategoryFilterPicker.ItemsSource = filterCategories;
             CategoryFilterPicker.SelectedIndex = 0;
         }
 
@@ -186,10 +139,7 @@ namespace LifeManager
     ? DateTime.SpecifyKind(DueDatePicker.Date.Value, DateTimeKind.Utc)
     : null
             };
-            var response = await _httpClient.PostAsJsonAsync(
-     "https://localhost:7187/api/tasks",
-     newTask
- );
+            var response = await _viewModel.CreateTaskAsync(newTask);
 
             System.Diagnostics.Debug.WriteLine(
     $"POST status: {response.StatusCode}"
@@ -212,84 +162,12 @@ namespace LifeManager
                 return;
             }
 
-            await LoadTasksAsync();
+          
             TaskEntry.Text = "";
 
         }
         private void DisplayTasks()
         {
-
-            var topTasks = Tasks
-    .Where(task => !task.IsCompleted)
-    .OrderByDescending(task => task.Priority)
-    .ThenBy(task => task.DueDate ?? DateTime.MaxValue)
-    .Take(3)
-    .ToList();
-
-            TopTasksList.Children.Clear();
-
-            foreach (TodoTask task in topTasks)
-            {
-                string priorityName = task.Priority switch
-                {
-                    3 => "High",
-                    2 => "Medium",
-                    _ => "Low"
-                };
-
-                HorizontalStackLayout taskLayout = new HorizontalStackLayout
-                {
-                    Spacing = 12
-                };
-
-                Label titleLabel = new Label
-                {
-                    Text = task.Title,
-                    FontSize = 16,
-                    VerticalOptions = LayoutOptions.Center
-                };
-
-                Label priorityLabel = new Label
-                {
-                    Text = priorityName.ToUpper(),
-                    FontSize = 12,
-                    Padding = new Thickness(10, 5),
-                    TextColor = Colors.Black,
-                    VerticalOptions = LayoutOptions.Center
-                };
-
-                string priorityColor = task.Priority switch
-                {
-                    3 => "PriorityHigh",
-                    2 => "PriorityMedium",
-                    _ => "PriorityLow"
-                };
-
-                Border topPriorityBadge = new Border
-                {
-                    Content = priorityLabel,
-                    StrokeThickness = 0,
-                    StrokeShape = new RoundRectangle
-                    {
-                        CornerRadius = new CornerRadius(8)
-                    }
-                };
-
-                topPriorityBadge.SetDynamicResource(
-                    Border.BackgroundColorProperty,
-                    priorityColor
-                );
-                taskLayout.Children.Add(titleLabel);
-                taskLayout.Children.Add(topPriorityBadge);
-
-                TopTasksList.Children.Add(taskLayout);
-            }
-
-            var filteredTasks = Tasks.Where(task =>
-      CategoryFilterPicker.SelectedItem is not Category selectedCategory
-      || selectedCategory.Id == 0
-      || task.CategoryId == selectedCategory.Id
-  ).ToList();
 
             TaskList.ItemTemplate = new DataTemplate(() =>
             {
@@ -306,20 +184,6 @@ namespace LifeManager
                 return container;
             });
 
-            if (SortPicker.SelectedIndex == 0) // Priority
-            {
-                filteredTasks = filteredTasks
-                    .OrderByDescending(task => task.Priority)
-                    .ToList();
-            }
-            else if (SortPicker.SelectedIndex == 1) // Due date
-            {
-                filteredTasks = filteredTasks
-                    .OrderBy(task => task.DueDate ?? DateTime.MaxValue)
-                    .ToList();
-            }
-
-            TaskList.ItemsSource = filteredTasks;
         }
 
         private Border CreateTaskCard(TodoTask task)
@@ -410,8 +274,9 @@ namespace LifeManager
 
             Label categoryTag = new Label
             {
-                Text = Categories.FirstOrDefault(c => c.Id == task.CategoryId)?.Name
-   ?? "Unknown",
+                Text = _viewModel.Categories
+    .FirstOrDefault(c => c.Id == task.CategoryId)?.Name
+    ?? "Unknown",
                 FontSize = 12,
                 Padding = new Thickness(10, 5),
                 TextColor = Colors.Black
@@ -506,13 +371,7 @@ namespace LifeManager
 
             deleteButton.Clicked += async (sender, e) =>
             {
-                var response = await _httpClient.DeleteAsync(
-                    $"https://localhost:7187/api/tasks/{task.Id}"
-                );
-
-                response.EnsureSuccessStatusCode();
-
-                await LoadTasksAsync();
+                await _viewModel.DeleteTaskCommand.ExecuteAsync(task);
             };
 
             Button editButton = new Button
@@ -554,21 +413,16 @@ namespace LifeManager
                 Label.TextColorProperty,
                 "ThemeText"
             );
-
             doneCheckBox.CheckedChanged += async (sender, e) =>
             {
                 task.IsCompleted = e.Value;
 
-                taskLabel.TextDecorations = task.IsCompleted ? TextDecorations.Strikethrough : TextDecorations.None;
-                var response = await _httpClient.PutAsJsonAsync(
-$"https://localhost:7187/api/tasks/{task.Id}",
-task
-);
+                taskLabel.TextDecorations = task.IsCompleted
+                    ? TextDecorations.Strikethrough
+                    : TextDecorations.None;
 
-                response.EnsureSuccessStatusCode();
-                await LoadTasksAsync();
+                await _viewModel.ToggleTaskCommand.ExecuteAsync(task);
             };
-
 
 
 

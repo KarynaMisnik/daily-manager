@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Http.Json;
 using LifeManager.Models;
+using LifeManager.Interfaces;
 
 namespace LifeManager.Services
 {
-    internal class WeatherService
+    public class WeatherService : IWeatherService
     {
-        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient;
+
+        public WeatherService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
         private const string WeatherApiUrl =
     "https://api.open-meteo.com/v1/forecast" +
     "?latitude=63.10" +
