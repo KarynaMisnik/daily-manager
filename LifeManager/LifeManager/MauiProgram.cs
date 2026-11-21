@@ -30,6 +30,9 @@ namespace LifeManager
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<EditTaskPage>();
             builder.Services.AddTransient<MainViewModel>();
+            builder.Services.AddTransient<EditTaskViewModel>();
+            builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<SettingsPage>();
 
             //the DI container creates a new MainPage instance whenever one is requested
 

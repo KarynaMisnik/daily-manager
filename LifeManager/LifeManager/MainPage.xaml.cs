@@ -11,52 +11,16 @@ namespace LifeManager
 {
     public partial class MainPage : ContentPage
     {
-        private List<TodoTask> Tasks = new List<TodoTask>();
-        // List<TodoTask> is a collection that can hold multiple task objects.
-        // Tasks is the name of that collection.
-        // private means it's accessible inside MainPage
+       
 
-        private readonly IWeatherService _weatherService;
-        private readonly ITodoService _todoService;
+    
+      
         private readonly MainViewModel _viewModel;
-        private readonly ICategoryService _categoryService;
-        private List<Category> Categories = new();
-
-        private void OnCategoryFilterChanged(object sender, EventArgs e)
-        {
-            
-            DisplayTasks();
-        }
+        
 
         private async Task LoadWeatherAsync()
         {
-            try
-            {
-                CurrentWeather? weather = await _weatherService.GetWeatherAsync();
-
-                if (weather != null)
-                {
-                    WeatherLabel.Text =
-                        $"Temperature: {weather.Temperature:F1}°C | Wind: {weather.WindSpeed:F1} m/s";
-
-                    if (weather.WindSpeed > 5)
-                    {
-                        WeatherLabel.Text += "\n🪁 Kitesurf weather!";
-                    }
-                }
-                else
-                {
-                    WeatherLabel.Text = "Weather data unavailable";
-                }
-            }
-            catch (HttpRequestException)
-            {
-                WeatherLabel.Text = "Unable to load weather. Check your internet connection.";
-            }
-            catch (TaskCanceledException)
-            {
-                WeatherLabel.Text = "Weather request timed out.";
-            }
+            await _viewModel.LoadWeatherCommand.ExecuteAsync(null);
         }
 
         private async void OnSettingsClicked(object sender, EventArgs e)
@@ -70,10 +34,9 @@ namespace LifeManager
 
         private async Task LoadTasksAsync()
         {
-            Tasks = await _todoService.GetTasksAsync();
-            DisplayTasks();
             await _viewModel.LoadTasksCommand.ExecuteAsync(null);
 
+            DisplayTasks();
         }
 
         private async void OnNewCategoryClicked(object sender, EventArgs e)
@@ -94,7 +57,7 @@ namespace LifeManager
                 Name = categoryName.Trim()
             };
 
-            var response = await _categoryService.CreateCategoryAsync(newCategory);
+            var response = await _viewModel.CreateCategoryAsync(newCategory);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -117,21 +80,12 @@ namespace LifeManager
         }
 
         // constructor
-        public MainPage(
-     IWeatherService weatherService,
-     ITodoService todoService,
-     ICategoryService categoryService,
-     MainViewModel viewModel)
+        public MainPage(MainViewModel viewModel)
         {
-
-
             InitializeComponent();
-            _weatherService = weatherService;
-            _todoService = todoService;
-            _categoryService = categoryService;
-            BindingContext = viewModel;
+
             _viewModel = viewModel;
-            // MainPage receives the service through its constructor
+            BindingContext = viewModel;
         }
 
         protected override async void OnAppearing()
@@ -162,18 +116,9 @@ namespace LifeManager
 
         private async Task LoadCategoriesAsync()
         {
-            Categories = await _categoryService.GetCategoriesAsync();
-            CategoryPicker.ItemsSource = Categories;
+            await _viewModel.LoadCategoriesAsync();
+
             CategoryPicker.SelectedIndex = 0;
-
-            var filterCategories = new List<Category>
-{
-    new Category { Id = 0, Name = "All categories" }
-};
-
-            filterCategories.AddRange(Categories);
-
-            CategoryFilterPicker.ItemsSource = filterCategories;
             CategoryFilterPicker.SelectedIndex = 0;
         }
 
@@ -194,7 +139,7 @@ namespace LifeManager
     ? DateTime.SpecifyKind(DueDatePicker.Date.Value, DateTimeKind.Utc)
     : null
             };
-            var response = await _todoService.CreateTaskAsync(newTask);
+            var response = await _viewModel.CreateTaskAsync(newTask);
 
             System.Diagnostics.Debug.WriteLine(
     $"POST status: {response.StatusCode}"
@@ -217,7 +162,7 @@ namespace LifeManager
                 return;
             }
 
-            await LoadTasksAsync();
+          
             TaskEntry.Text = "";
 
         }
@@ -329,8 +274,9 @@ namespace LifeManager
 
             Label categoryTag = new Label
             {
-                Text = Categories.FirstOrDefault(c => c.Id == task.CategoryId)?.Name
-   ?? "Unknown",
+                Text = _viewModel.Categories
+    .FirstOrDefault(c => c.Id == task.CategoryId)?.Name
+    ?? "Unknown",
                 FontSize = 12,
                 Padding = new Thickness(10, 5),
                 TextColor = Colors.Black
@@ -425,8 +371,7 @@ namespace LifeManager
 
             deleteButton.Clicked += async (sender, e) =>
             {
-                await _todoService.DeleteTaskAsync(task.Id);
-                await LoadTasksAsync();
+                await _viewModel.DeleteTaskCommand.ExecuteAsync(task);
             };
 
             Button editButton = new Button
@@ -476,8 +421,7 @@ namespace LifeManager
                     ? TextDecorations.Strikethrough
                     : TextDecorations.None;
 
-                await _todoService.UpdateTaskAsync(task);
-                await LoadTasksAsync();
+                await _viewModel.ToggleTaskCommand.ExecuteAsync(task);
             };
 
 

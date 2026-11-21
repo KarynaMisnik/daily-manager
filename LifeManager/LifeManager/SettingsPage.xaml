@@ -2,7 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LifeManager.SettingsPage"
-             Title="SettingsPage">
+             Title="SettingsPage"
+             xmlns:viewmodels="clr-namespace:LifeManager.ViewModels"
+x:DataType="viewmodels:SettingsViewModel"
+             >
     <VerticalStackLayout
     Padding="20"
     Spacing="15">
@@ -17,9 +20,10 @@
 
         <Slider
         x:Name="FontSizeSlider"
+        Value="{Binding FontSize, Mode=TwoWay}"
         Minimum="12"
         Maximum="30"
-        Value="16" />
+         />
 
         <Label
     x:Name="FontPreview"
@@ -33,7 +37,8 @@
 
         <Picker
     x:Name="BackgroundPicker"
-    Title="Choose background">
+    Title="Choose background"
+    SelectedIndex="{Binding SelectedThemeIndex, Mode=TwoWay}">
             <Picker.Items>
                 <x:String>White</x:String>
                 <x:String>Beige</x:String>

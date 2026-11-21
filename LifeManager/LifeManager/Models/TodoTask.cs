@@ -4,10 +4,16 @@ using System.Text;
 
 namespace LifeManager.Models
 {
-    internal class TodoTask
+    public class TodoTask
     {
-        public int Priority { get; set; } = 1;
+        public string Title { get; set; } = string.Empty;
+        public bool IsCompleted { get; set; }
 
+        public int CategoryId { get; set; }
+
+        public int Id { get; set; }
+
+        public int Priority { get; set; } = 1;
         public DateTime? DueDate { get; set; }
     }
 }

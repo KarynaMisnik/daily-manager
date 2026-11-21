@@ -2,7 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:LifeManager.Converters"
-             
+             xmlns:viewmodels="clr-namespace:LifeManager.ViewModels"
+             xmlns:models="clr-namespace:LifeManager.Models"
+             x:DataType="viewmodels:MainViewModel"
              x:Class="LifeManager.MainPage">
 
     <ContentPage.Resources>
@@ -32,11 +34,6 @@
     Clicked="OnSettingsClicked"
     SemanticProperties.Description="Open settings" />
 
-                <!-- ColumnDefinitions="*,Auto" creates two columns.
-* takes the available space on the left.
-Auto takes only the space needed for the button.
-Grid.Column="1" places Settings in the right column. -->
-
             </Grid>
             <Label
         Text="My To-Do List"
@@ -45,7 +42,7 @@ Grid.Column="1" places Settings in the right column. -->
         FontAttributes="Bold" />
             <Label
     x:Name="WeatherLabel"
-    Text="Loading weather..."
+    Text="{Binding WeatherText}"
     FontSize="16" />
             <Entry
     x:Name="TaskEntry"
@@ -89,7 +86,8 @@ Grid.Column="1" places Settings in the right column. -->
         Grid.Column="2"
         x:Name="CategoryPicker"
         Title="Select category"
-        ItemDisplayBinding="{Binding Name}" 
+       ItemDisplayBinding="{Binding Name, x:DataType={x:Type models:Category}}"
+        ItemsSource="{Binding Categories}"            
         VerticalOptions="End"            
                     />
 
@@ -121,7 +119,7 @@ Grid.Column="1" places Settings in the right column. -->
     SelectionMode="None">
 
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:TodoTask">
                         <HorizontalStackLayout Spacing="12" Padding="0,4">
 
                             <Label
@@ -163,8 +161,9 @@ Grid.Column="1" places Settings in the right column. -->
         x:Name="CategoryFilterPicker"
         Title="All categories"
         WidthRequest="200"
-        ItemDisplayBinding="{Binding Name}"
+        ItemDisplayBinding="{Binding Name, x:DataType={x:Type models:Category}}"
         SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+        ItemsSource="{Binding FilterCategories}"            
         />
 
                 <Picker

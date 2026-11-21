@@ -32,6 +32,19 @@ public class CategoriesController : ControllerBase
         }
 
         category.Name = category.Name.Trim();
+        bool categoryExists = await _context.Categories
+    .AnyAsync(c => c.Name.ToLower() == category.Name.ToLower());
+
+        if (categoryExists)
+        {
+            return BadRequest(new
+            {
+                errors = new Dictionary<string, string[]>
+                {
+                    ["Name"] = new[] { "Category already exists." }
+                }
+            });
+        }
 
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
